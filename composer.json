@@ -7,7 +7,7 @@
         "micro framework"
     ],
     "homepage": "https://neoblackant.org",
-    "type": "project",
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
