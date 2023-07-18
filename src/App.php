@@ -18,12 +18,13 @@ use Neko\Framework\Router\Route;
 use Neko\Framework\Router\Router;
 use Neko\Framework\Util\Str;
 use Neko\Framework\View\View;
+use Neko\Framework\Shortcode\ShortcodeFacade;
 
 class App implements ArrayAccess {
 
     use MacroableTrait;
 
-    const VERSION = '1.0.0';
+    const VERSION = '1.1.0';
 
     protected static $instances = [];
 
@@ -73,6 +74,7 @@ class App implements ArrayAccess {
         $this['hook'] = new Hook($this);
         $this['request'] = new Request($this);
         $this['response'] = new Response($this);
+        $this['shortcode'] = new ShortcodeFacade;
 
         static::$instances[$name] = $this;
 
@@ -306,7 +308,6 @@ class App implements ArrayAccess {
 
     public function shutdown()
     {
-       
         $providers = $this->providers;
         foreach($providers as $provider) {
             $provider->shutdown();
@@ -327,6 +328,15 @@ class App implements ArrayAccess {
             $this->boot();
 
             $path = $path ?: $this->request->path();
+
+            // if(app()->config['general']['config']['maintenance'] == "true")
+            // {
+            //     if(!Str::contains(url_path(), app()->admin_url) AND !Str::contains(url_path(), "/js") AND !Str::contains(url_path(), "/asset") AND !Str::contains(url_path(), "/theme") AND !Str::contains(url_path(), "maintenance"))
+            //     {
+            //         $this->hook->apply('maintenance_mode', [$path]);
+            //     }
+            // }
+
             $method = $method ?: $this->request->server['REQUEST_METHOD'];
 
             /**
@@ -345,6 +355,7 @@ class App implements ArrayAccess {
 
             $middlewares = $matched_route->getMiddlewares();
             $action = $matched_route->getAction();
+    
 
             $actions = $this->makeActions($middlewares, $action);
             $this->shutdown();
@@ -443,6 +454,9 @@ class App implements ArrayAccess {
         } else {
             $message = "Error 404! No route matched with '{$method} {$path}'";
         }
+
+        $this->hook->apply('before.notfound', [substr($this->request->path(),1)]);
+        $this->hook->apply('after.notfound', [substr($this->request->path(),1)]);
 
         throw new HttpNotFoundException($message);
     }

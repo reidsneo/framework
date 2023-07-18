@@ -457,12 +457,12 @@ class Str
         $num_to_remove = ceil($len * (".".$percent)); // 40% removal
         for($i = 0; $i < $num_to_remove; $i++)
         {
-          $k = 0;
-          do
-          {
-            $k = rand(1, $len);
-          } while($string[$k-1] == $censor);
-          $string[$k-1] = $censor;
+            $k = 0;
+            do
+            {
+                $k = rand(1, $len);
+            } while($string[$k-1] == $censor);
+            $string[$k-1] = $censor;
         }
         return $string;
     }
@@ -508,6 +508,34 @@ class Str
         }
         $table .= '</table>';
         return $table;
+    }
+
+    public static function genUUID($data = null)
+    {
+        // Generate 16 bytes (128 bits) of random data or use the data passed into the function.
+        $data = $data ?? random_bytes(16);
+        assert(strlen($data) == 16);
+    
+        // Set version to 0100
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+        // Set bits 6-7 to 10
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+    
+        // Output the 36 character UUID.
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));        
+    }
+
+    public static function isValidUUID($uuid)
+    {
+        if (!is_string($uuid) || (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $uuid) !== 1)) {
+            return false;
+        }    
+        return true;
+    }
+
+    public static function formatThousand($number,$decimal=0,$separator_dec=",",$separator_dot=".")
+    {
+        return number_format($number, $decimal, $separator_dec, $separator_dot);
     }
     
 }

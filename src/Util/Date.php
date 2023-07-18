@@ -59,13 +59,19 @@ class Date
         return date("H:i:s");
     }
 
-    public static function secondsToTimeAlt($seconds) 
+    public static function secondsToTimeAlt($seconds)
     {
-
         $dtF = new \DateTime('@0');
         $dtT = new \DateTime("@$seconds");
         return $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+    }
 
+    public static function minutesToTimeAlt($minutes)
+    {
+        $seconds = $minutes * 60; // Convert minutes to seconds
+        $dtF = new \DateTime('@0');
+        $dtT = new \DateTime("@$seconds");
+        return $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
     }
 
     public static function secondsToTime($inputSeconds) {
